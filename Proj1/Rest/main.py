@@ -18,6 +18,8 @@ def get_reading(iot_id):
     return {'error':'IoT not found'}
 
 #Route Crate Readings
+#use this for body V
+#{ "temperature" : 29.0, "ph": 9.0,"turbidity" : 9.0, "BOD": 18.0,"fecal" : 28.0, "oxygen": 58.0,"nitr": 108.0, "conductivity" : 158.0}
 @app.route('/iots', methods=['POST'])
 def create_reading():
     new_reading={'id':len(IoTReadings)+1,
