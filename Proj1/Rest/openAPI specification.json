@@ -1,0 +1,252 @@
+{
+  "definitions": {},
+  "info": {
+    "description": "powered by Flasgger",
+    "termsOfService": "/tos",
+    "title": "A swagger API",
+    "version": "0.0.1"
+  },
+  "paths": {
+    "/example": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "key1": "value",
+                "key2": 42
+              },
+              "schema": {
+                "properties": {
+                  "key1": {
+                    "type": "string"
+                  },
+                  "key2": {
+                    "type": "number"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully received the JSON object"
+          }
+        },
+        "summary": "Example Route",
+        "tags": [
+          "example"
+        ]
+      }
+    },
+    "/example2": {
+      "post": {
+        "parameters": [
+          {
+            "example": {
+              "key1": "value",
+              "key2": 42
+            },
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "properties": {
+                "key1": {
+                  "type": "string"
+                },
+                "key2": {
+                  "type": "number"
+                }
+              },
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully received the JSON object"
+          }
+        },
+        "summary": "Example Route",
+        "tags": [
+          "example"
+        ]
+      }
+    },
+    "/iots": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Return all IoT readings"
+          }
+        },
+        "summary": "Get all IoT readings"
+      },
+      "post": {
+        "parameters": [
+          {
+            "example": {
+              "BOD": 18.0,
+              "conductivity": 158.0,
+              "fecal": 28.0,
+              "nitr": 108.0,
+              "oxygen": 58.0,
+              "ph": 9.0,
+              "temperature": 29.0,
+              "turbidity": 9.0
+            },
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "properties": {
+                "BOD": {
+                  "type": "number"
+                },
+                "conductivity": {
+                  "type": "number"
+                },
+                "fecal": {
+                  "type": "number"
+                },
+                "nitr": {
+                  "type": "number"
+                },
+                "oxygen": {
+                  "type": "number"
+                },
+                "ph": {
+                  "type": "number"
+                },
+                "temperature": {
+                  "type": "number"
+                },
+                "turbidity": {
+                  "type": "number"
+                }
+              },
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully created a new IoT reading"
+          },
+          "400": {
+            "description": "Bad Request - Invalid input data"
+          }
+        },
+        "summary": "Create a new IoT reading"
+      }
+    },
+    "/iots/{iot_id}": {
+      "delete": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "iot_id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully deleted the IoT reading"
+          },
+          "404": {
+            "description": "IoT reading not found"
+          }
+        },
+        "summary": "Delete a specific IoT reading by ID"
+      },
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "iot_id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Return the specified IoT reading"
+          },
+          "404": {
+            "description": "IoT reading not found"
+          }
+        },
+        "summary": "Get a specific IoT reading by ID"
+      },
+      "put": {
+        "parameters": [
+          {
+            "example": {
+              "BOD": 18.0,
+              "conductivity": 158.0,
+              "fecal": 28.0,
+              "nitr": 108.0,
+              "oxygen": 58.0,
+              "ph": 9.0,
+              "temperature": 29.0,
+              "turbidity": 9.0
+            },
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "properties": {
+                "BOD": {
+                  "type": "number"
+                },
+                "conductivity": {
+                  "type": "number"
+                },
+                "fecal": {
+                  "type": "number"
+                },
+                "nitr": {
+                  "type": "number"
+                },
+                "oxygen": {
+                  "type": "number"
+                },
+                "ph": {
+                  "type": "number"
+                },
+                "temperature": {
+                  "type": "number"
+                },
+                "turbidity": {
+                  "type": "number"
+                }
+              },
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated the IoT reading"
+          },
+          "400": {
+            "description": "Bad Request - Invalid input data"
+          },
+          "404": {
+            "description": "IoT reading not found"
+          }
+        },
+        "summary": "Update a specific IoT reading by ID"
+      }
+    }
+  },
+  "swagger": "2.0"
+}
