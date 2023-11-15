@@ -1,4 +1,4 @@
-syntax = "proto3";
+ syntax = "proto3";
 
 option csharp_namespace = "GrpcService";
 
@@ -7,15 +7,36 @@ package greet;
 // The greeting service definition.
 service Greeter {
   // Sends a greeting
-  rpc SayHello (HelloRequest) returns (HelloReply);
+	rpc GetAll(IoTParams) returns (IoTList);
+	rpc Get(IoTId) returns (IoTReading);
+	rpc Create(IoTReading) returns (IoTReading);
+	rpc Update(IoTReading) returns (IoTReading);
+	rpc Delete(IoTId) returns (IoTReading);
 }
 
 // The request message containing the user's name.
-message HelloRequest {
-  string name = 1;
+message IoTReading
+{
+	int32 id = 1;
+	float Temperature = 2;
+	float PH = 3;
+	float Turbidity = 4;
+	float BOD = 5;
+	int32 FecalColiform = 6;
+	float DisolvedOxygen = 7;
+	float Nitratenans = 8;
+	int32 Conductivity = 9;
 }
+message IoTList
+{
+	repeated IoTReading IoTReadings = 1;
+}
+message IoTId
+{
+	int32 id = 1;
+}
+//used to send epmty params
+message IoTParams 
+{
 
-// The response message containing the greetings.
-message HelloReply {
-  string message = 1;
 }

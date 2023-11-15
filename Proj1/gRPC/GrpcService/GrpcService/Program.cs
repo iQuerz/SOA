@@ -1,14 +1,20 @@
+using GrpcService.Data;
 using GrpcService.Services;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Additional configuration is required to successfully run gRPC on macOS.
 // For instructions on how to configure Kestrel and gRPC clients on macOS, visit https://go.microsoft.com/fwlink/?linkid=2099682
 
+builder.Services.AddDbContext<IoTDbContext>(options =>
+    options.UseSqlite("Data Source=../../../Database/IOTMeterData.db"));
+
 // Add services to the container.
 builder.Services.AddGrpc();
 
 var app = builder.Build();
+
 
 // Configure the HTTP request pipeline.
 app.MapGrpcService<GreeterService>();
