@@ -10,11 +10,8 @@
     <PackageReference Include="Bogus" Version="34.0.2" />
     <PackageReference Include="HotChocolate.AspNetCore" Version="13.7.0" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.3" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Controllers\" />
   </ItemGroup>
 
 </Project>
