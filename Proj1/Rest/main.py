@@ -19,30 +19,33 @@ def get_iots():
     """
     return GetAll()
 
-#Route Get spcific Reading
-@app.route('/iots/<int:iot_id>', methods=['GET'])
-def get_reading(iot_id):
+@app.route('/iot/<string:ts>/<string:device>', methods=['GET'])
+def get_reading(ts, device):
     """
     Get a specific IoT reading by ID
     ---
     parameters:
       - in: path
-        name: iot_id
+        name: ts
+        type: string
         required: true
-        schema:
-          type: integer
+        description: Timestamp
+      - in: path
+        name: device
+        type: string
+        required: true
+        description: Device ID
     responses:
       200:
         description: Return the specified IoT reading
       404:
         description: IoT reading not found
     """
-    return Get(iot_id)
+    # Use ts and device in your function logic
+    return Get(ts, device)
         
 
 #Route Crate Readings
-#use this for body V
-#{ "temperature" : 29.0, "ph": 9.0,"turbidity" : 9.0, "BOD": 18.0,"fecal" : 28.0, "oxygen": 58.0,"nitr": 108.0, "conductivity" : 158.0}
 @app.route('/iots', methods=['POST'])
 def create_reading():
     """
@@ -55,85 +58,98 @@ def create_reading():
         schema:
           type: object
           properties:
-            temperature:
+            ts:
+              type: string
+            device:
+              type: string
+            co:
               type: number
-            ph:
+            humidity:
               type: number
-            turbidity:
+            light:
+              type: boolean
+            lpg:
               type: number
-            BOD:
+            motion:
+              type: boolean
+            smoke:
               type: number
-            fecal:
-              type: number
-            oxygen:
-              type: number
-            nitr:
-              type: number
-            conductivity:
+            temp:
               type: number
         example:
-          temperature: 29.0
-          ph: 9.0
-          turbidity: 9.0
-          BOD: 18.0
-          fecal: 28.0
-          oxygen: 58.0
-          nitr: 108.0
-          conductivity: 158.0
+          ts: "1.5945120943859746E9"
+          device: "b8:27:eb:bf:9d:51"
+          co: 0.00495593864839124
+          humidity: 51.0
+          light: true
+          lpg: 0.00765082227055719
+          motion: true
+          smoke: 0.0204112701224129
+          temp: 25.0
     responses:
       201:
         description: Successfully created a new IoT reading
       400:
         description: Bad Request - Invalid input data
     """
-    new_reading={'temperature':request.json['temperature'], 
-                 'ph':request.json['ph'],
-                 'turbidity':request.json['turbidity'],
-                 'BOD':request.json['BOD'],
-                 'fecal':request.json['fecal'],
-                 'oxygen':request.json['oxygen'],
-                 'nitr':request.json['nitr'],
-                 'conductivity':request.json['conductivity']}
+    new_reading = {
+        'ts': request.json['ts'],
+        'device': request.json['device'],
+        'co': request.json['co'],
+        'humidity': request.json['humidity'],
+        'light': request.json['light'],
+        'lpg': request.json['lpg'],
+        'motion': request.json['motion'],
+        'smoke': request.json['smoke'],
+        'temp': request.json['temp']
+    }
     return Create(new_reading)
 
 #Route Update a Readings
-@app.route('/iots/<int:iot_id>', methods=['PUT'])
-def update_book(iot_id):
+@app.route('/iot/<string:ts>/<string:device>', methods=['PUT'])
+def update_book(ts, device):
     """
     Update a specific IoT reading by ID
     ---
     parameters:
+      - in: path
+        name: ts
+        type: string
+        required: true
+        description: Timestamp
+      - in: path
+        name: device
+        type: string
+        required: true
+        description: Device ID
       - in: body
         name: body
         required: true
         schema:
           type: object
           properties:
-            temperature:
+            co:
               type: number
-            ph:
+            humidity:
               type: number
-            turbidity:
+            light:
+              type: boolean
+            lpg:
               type: number
-            BOD:
+            motion:
+              type: boolean
+            smoke:
               type: number
-            fecal:
-              type: number
-            oxygen:
-              type: number
-            nitr:
-              type: number
-            conductivity:
+            temp:
               type: number
         example:
-          temperature: 29.0
-          ph: 9.0
-          turbidity: 9.0
-          BOD: 18.0
-          fecal: 28.0
-          oxygen: 58.0
-          nitr: 108.0
-          conductivity: 158.0
+          co: 0.00495593864839124
+          humidity: 51.0
+          light: true
+          lpg: 0.00765082227055719
+          motion: true
+          smoke: 0.0204112701224129
+          temp: 25.0
     responses:
       200:
         description: Successfully updated the IoT reading
@@ -142,31 +158,36 @@ def update_book(iot_id):
       400:
         description: Bad Request - Invalid input data
     """
-    reading = Get(iot_id)
-    if reading[0]==iot_id:
-        reading[0]=request.json['temperature']
-        reading[1]=request.json['ph']
-        reading[2]=request.json['turbidity']
-        reading[3]=request.json['BOD']
-        reading[4]=request.json['fecal']
-        reading[5]=request.json['oxygen']
-        reading[6]=request.json['nitr']
-        reading[7]=request.json['conductivity']
-        reading[8]=iot_id
+    reading = Get(ts, device)
+
+    reading[0]=request.json['co']
+    reading[1]=request.json['humidity']
+    reading[2]=request.json['light']
+    reading[3]=request.json['lpg']
+    reading[4]=request.json['motion']
+    reading[5]=request.json['smoke']
+    reading[6]=request.json['temp']
+    reading[7]=ts
+    reading[8]=device
     return Update(reading) 
         
 #Route Delete a Readings
-@app.route('/iots/<int:iot_id>', methods=['DELETE'])
+@app.route('/iot/<string:ts>/<string:device>', methods=['DELETE'])
 def delete_book(iot_id):
     """
     Delete a specific IoT reading by ID
     ---
     parameters:
       - in: path
-        name: iot_id
+        name: ts
+        type: string
         required: true
-        schema:
-          type: integer
+        description: Timestamp
+      - in: path
+        name: device
+        type: string
+        required: true
+        description: Device ID
     responses:
       204:
         description: Successfully deleted the IoT reading

@@ -1,53 +1,48 @@
 import sqlite3
 
-databaseName = "IOTMeterData.db"
-conn = sqlite3.connect('..\Database\IOTMeterData.db', check_same_thread=False)
+databaseName = "iot_telemetry_data.db"
+conn = sqlite3.connect('..\Database\iot_telemetry_data.db', check_same_thread=False)
 
 c = conn.cursor()
 
 def GetAll():
-    c.execute("SELECT * FROM IOTMeterData")
+    c.execute("SELECT * FROM iot_telemetry_data")
     returnValue = c.fetchall()
     conn.commit()
     return returnValue
 
-def Get(id):
-    c.execute("SELECT * FROM IOTMeterData WHERE ID=:id", {"id": id})
+def Get(ts, device):
+    c.execute("SELECT * FROM iot_telemetry_data WHERE ts=:ts AND device=device", {"ts": ts,"device": device})
     returnValue = c.fetchone()
     conn.commit()
     return list(returnValue)
 
 def Create(reading):
-    c.execute("""INSERT INTO IOTMeterData ("Temperature(C)", "pH", "Turbidity(NTU)", "BOD(mg/l)", "FecalColiform(MPN/100ml)", "DisolvedOxygen(mg/l)", "NITRATENANN+NITRITENANN(mg/l)", "Conductivity(micro_mhos/cm)")
-              VALUES (:temperature, :ph, :turbidity, :BOD, :fecal, :oxygen, :nitr, :conductivity)""", reading)
+    c.execute("""INSERT INTO iot_telemetry_data ("ts", "device", "co", "humidity", "light", "lpg", "motion", "smoke", "temp")
+              VALUES (:ts, :device, :co, :humidity, :light, :lpg, :motion, :smoke, :temp)""", reading)
     conn.commit()
     return reading
+
 
 
 def Update(reading):
     c.execute('''
-        UPDATE IOTMeterData
-        SET "Temperature(C)" = :temperature,
-            "pH" = :ph,
-            "Turbidity(NTU)" = :turbidity,
-            "BOD(mg/l)" = :BOD,
-            "FecalColiform(MPN/100ml)" = :fecal,
-            "DisolvedOxygen(mg/l)" = :oxygen,
-            "NITRATENANN+NITRITENANN(mg/l)" = :nitr,
-            "Conductivity(micro_mhos/cm)" = :conductivity
-        WHERE ID = :id
+        UPDATE iot_telemetry_data
+        SET
+            "co" = :co,
+            "humidity" = :humidity,
+            "light" = :light,
+            "lpg" = :lpg,
+            "motion" = :motion,
+            "smoke" = :smoke,
+            "temp" = :temp
+        WHERE ts=:ts AND device=:device
     ''', reading)
     conn.commit()
     return reading
 
+
 def Delete(id):
-    c.execute("DELETE FROM IOTMeterData WHERE ID=:id", {"id": id})
+    c.execute("DELETE FROM iot_telemetry_data WHERE ts=:ts AND device=device", {"ts": ts,"device": device})
     conn.commit()
     return "Succssus"
-
-# IoTReadings = [
-#     {"id": 1, "temperature" : 24.0, "ph": 3.0,"turbidity" : 5.0, "BOD": 15.0,"fecal" : 20.0, "oxygen": 50.0,"nitr": 100.0, "conductivity" : 150.0},
-#     {"id": 2, "temperature" : 25.0, "ph": 4.0,"turbidity" : 6.0, "BOD": 16.0,"fecal" : 21.0, "oxygen": 51.0,"nitr": 101.0, "conductivity" : 151.0},
-#     {"id": 3, "temperature" : 26.0, "ph": 5.0,"turbidity" : 7.0, "BOD": 17.0,"fecal" : 22.0, "oxygen": 52.0,"nitr": 102.0, "conductivity" : 152.0},
-#     {"id": 4, "temperature" : 26.0, "ph": 5.0,"turbidity" : 7.0, "BOD": 17.0,"fecal" : 22.0, "oxygen": 52.0,"nitr": 102.0, "conductivity" : 152.0}
-# ]
