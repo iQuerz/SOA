@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 // For instructions on how to configure Kestrel and gRPC clients on macOS, visit https://go.microsoft.com/fwlink/?linkid=2099682
 
 builder.Services.AddDbContext<IoTDbContext>(options =>
-    options.UseSqlite("Data Source=../../../Database/IOTMeterData.db"));
+    options.UseSqlite("Data Source=../../../Database/iot_telemetry_data.db"));
 
 // Add services to the container.
 builder.Services.AddGrpc();

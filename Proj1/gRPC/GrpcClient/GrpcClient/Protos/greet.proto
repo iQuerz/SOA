@@ -17,15 +17,15 @@ service Greeter {
 // The request message containing the user's name.
 message IoTReading
 {
-	int32 id = 1;
-	float Temperature = 2;
-	float PH = 3;
-	float Turbidity = 4;
-	float BOD = 5;
-	int32 FecalColiform = 6;
-	float DisolvedOxygen = 7;
-	float Nitratenans = 8;
-	int32 Conductivity = 9;
+    string ts = 1;
+    string device = 2;
+    double co = 3;
+    double humidity = 4;
+    bool  light = 5;
+    double lpg = 6;
+    bool  motion = 7;
+    double smoke = 8;
+    double temp = 9;
 }
 message IoTList
 {
@@ -33,9 +33,11 @@ message IoTList
 }
 message IoTId
 {
-	int32 id = 1;
+    string ts = 1;
+    string device = 2;
 }
 message IoTParams 
 {
-
+    int32 page_number = 1;
+    int32 page_size = 2;
 }
