@@ -1,7 +1,9 @@
 import paho.mqtt.client as mqtt
 import time
 
-broker_address = "localhost"
+
+#mosquitto_sub -t senzorski_podaci -h localhost
+broker_address = "host.docker.internal"
 port = 1883
 topic = "senzorski_podaci"
 
@@ -14,7 +16,7 @@ def send_sensor_data(client, sensor_data):
     for data in sensor_data:
         client.publish(topic, data)
         print(f"Poslani senzorski podatak: {data}")
-        time.sleep(5)  # Add a delay between sending each line
+        time.sleep(5)
 
 
 def on_connect(client, userdata, flags, rc):
@@ -31,3 +33,7 @@ sensor_data = read_sensor_data_from_file(file_path)
 send_sensor_data(client, sensor_data)
 
 client.loop_forever()
+
+#docker run -d --net=host 75ea6f770dd7
+#e9ff006adf45
+#9cba94ff37a4
