@@ -1,7 +1,7 @@
 ﻿using MQTTnet.Client;
 using MQTTnet;
 using MQTTnet.Server;
-
+using System.Text;
 
 namespace Analytics.Services
 {
@@ -15,42 +15,40 @@ namespace Analytics.Services
 
         }
 
-        public async Task ConnectAsync(string brokerAddress, int port, string clientId)
+        public async Task ConnectAsync(string brokerAddress, int port)
         {
             var options = new MqttClientOptionsBuilder()
                 .WithTcpServer(brokerAddress, port)
-                .WithClientId(clientId)
                 .Build();
+
+            _mqttClient.ApplicationMessageReceivedAsync += e =>
+            {
+                string payload = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
+                Console.WriteLine("Received application message.");
+                Console.WriteLine(payload);
+
+                return Task.CompletedTask;
+            };
 
 
             await _mqttClient.ConnectAsync(options, CancellationToken.None);
         }
-
-        public async Task SubscribeAsync(string messageCallback)
+        public async Task SubscribeAsync(string topic)
         {
-            var mqttFactory = new MqttFactory();
 
-            using (var mqttClient = mqttFactory.CreateMqttClient())
-            {
-                var mqttClientOptions = new MqttClientOptionsBuilder().WithTcpServer("broker.hivemq.com").Build();
-
-                await mqttClient.ConnectAsync(mqttClientOptions, CancellationToken.None);
 
                 var mqttSubscribeOptions = mqttFactory.CreateSubscribeOptionsBuilder()
                     .WithTopicFilter(
                         f =>
                         {
-                            f.WithTopic("mqttnet/samples/topic/1");
+                            f.WithTopic(topic);
                         })
                     .Build();
 
-                var response = await mqttClient.SubscribeAsync(mqttSubscribeOptions, CancellationToken.None);
+                await _mqttClient.SubscribeAsync(mqttSubscribeOptions, CancellationToken.None);
 
                 Console.WriteLine("MQTT client subscribed to topic.");
-
-                // The response contains additional data sent by the server after subscribing.
-                Console.WriteLine(response);
-            }
+            
         }
 
         public async Task PublishAsync(string topic, string payload)
@@ -63,12 +61,6 @@ namespace Analytics.Services
 
             await _mqttClient.PublishAsync(message);
         }
-        private void OnMessageReceived(MqttApplicationMessageReceivedEventArgs e)
-        {
-            _messageCallback?.Invoke(e.ApplicationMessage.ConvertPayloadToString());
-        }
-
-        private Action<string> _messageCallback;
         private void OnConnected(MqttClientConnectedEventArgs e)
         {
             Console.WriteLine("Connected to MQTT broker.");

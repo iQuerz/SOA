@@ -1,6 +1,15 @@
+using Analytics.Services;
+using MQTTnet.Client;
+using System.Net;
+using System.Text;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+var mqttService = new MqttService();
+await mqttService.ConnectAsync("localhost", 1883);
+await mqttService.SubscribeAsync("senzorski_podaci");
+
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
