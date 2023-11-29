@@ -31,9 +31,16 @@ namespace Analytics.Services
                     Console.WriteLine("Received application message.");
                     Console.WriteLine(payload);
 
-                    IoTReading Recived = Helper.Helper.Parse(payload);
-                    Console.WriteLine("Received application message. In object format is");
-                    Console.WriteLine(Recived.Ts, Recived.Device, Recived.Co);
+                    try
+                    {
+                        IoTReading Recived = Helper.Helper.Parse(payload);
+                        Console.WriteLine("Received application message. In object format is");
+                        Console.WriteLine(Recived.Ts, Recived.Device, Recived.Co);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"An error occurred: {ex.Message}");
+                    }
                 };
 
                 await _mqttClient.ConnectAsync(options, CancellationToken.None);
