@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  mqtt-broker:
+    image: eclipse-mosquitto
+    container_name: mqtt-broker
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+    networks:
+      - soa_net
+    ports:
+      - "1883:1883"
+
+
+  publisher:
+    build:
+      context: ../SensorDummy
+      dockerfile: Dockerfile
+    container_name: publisher
+    networks:
+      - soa_net
+    depends_on:
+      - mqtt-broker
+
+
+  subscriber:
+    build:
+      context: ../Analytics/Analytics
+      dockerfile: Dockerfile
+    container_name: subscriber
+    networks:
+      - soa_net
+    depends_on:
+      - mqtt-broker
+
+
+
+networks:
+  soa_net:
+    driver: bridge

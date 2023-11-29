@@ -3,10 +3,11 @@ import time
 
 
 #mosquitto_sub -t senzorski_podaci -h localhost
-broker_address = "host.docker.internal"
+broker_address = "mqtt-broker"
 port = 1883
 topic = "senzorski_podaci"
-
+print(broker_address)
+print("----------------------------")
 def read_sensor_data_from_file(file_path):
     with open(file_path, "r") as file:
         lines = file.readlines()[1:]
@@ -25,6 +26,8 @@ def on_connect(client, userdata, flags, rc):
 client = mqtt.Client("SensorDummy")
 client.on_connect = on_connect
 
+print(broker_address)
+client.username_pw_set("user2", "123")
 client.connect(broker_address, port, 60)
 
 file_path = "iot_telemetry_data.csv"

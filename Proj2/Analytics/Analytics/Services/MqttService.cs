@@ -15,28 +15,37 @@ namespace Analytics.Services
 
         }
 
-        public async Task ConnectAsync(string brokerAddress, int port)
+        public async Task ConnectAsync(string brokerAddress, int port, string username, string password)
         {
-            var options = new MqttClientOptionsBuilder()
-                .WithTcpServer(brokerAddress, port)
-                .Build();
-
-            _mqttClient.ApplicationMessageReceivedAsync += e =>
+            try
             {
-                string payload = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
-                Console.WriteLine("Received application message.");
-                Console.WriteLine(payload);
+                var options = new MqttClientOptionsBuilder()
+                    .WithTcpServer(brokerAddress, port)
+                    .WithCredentials(username, password)
+                    .Build();
 
-                return Task.CompletedTask;
-            };
+                _mqttClient.ApplicationMessageReceivedAsync += e =>
+                {
+                    string payload = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
+                    Console.WriteLine("Received application message.");
+                    Console.WriteLine(payload);
 
+                    return Task.CompletedTask;
+                };
 
-            await _mqttClient.ConnectAsync(options, CancellationToken.None);
+                await _mqttClient.ConnectAsync(options, CancellationToken.None);
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error during MQTT connection: {ex.Message}");
+            }
         }
+
         public async Task SubscribeAsync(string topic)
         {
-
-
+            try
+            {
                 var mqttSubscribeOptions = mqttFactory.CreateSubscribeOptionsBuilder()
                     .WithTopicFilter(
                         f =>
@@ -48,8 +57,13 @@ namespace Analytics.Services
                 await _mqttClient.SubscribeAsync(mqttSubscribeOptions, CancellationToken.None);
 
                 Console.WriteLine("MQTT client subscribed to topic.");
-            
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error during MQTT subscription: {ex.Message}");
+            }
         }
+
 
         public async Task PublishAsync(string topic, string payload)
         {
