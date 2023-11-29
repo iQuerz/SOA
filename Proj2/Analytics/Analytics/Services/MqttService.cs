@@ -2,6 +2,7 @@
 using MQTTnet;
 using MQTTnet.Server;
 using System.Text;
+using Analytics.Model;
 
 namespace Analytics.Services
 {
@@ -24,13 +25,15 @@ namespace Analytics.Services
                     .WithCredentials(username, password)
                     .Build();
 
-                _mqttClient.ApplicationMessageReceivedAsync += e =>
+                _mqttClient.ApplicationMessageReceivedAsync += async e =>
                 {
                     string payload = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
                     Console.WriteLine("Received application message.");
                     Console.WriteLine(payload);
 
-                    return Task.CompletedTask;
+                    IoTReading Recived = Helper.Helper.Parse(payload);
+                    Console.WriteLine("Received application message. In object format is");
+                    Console.WriteLine(Recived.Ts, Recived.Device, Recived.Co);
                 };
 
                 await _mqttClient.ConnectAsync(options, CancellationToken.None);
