@@ -3,6 +3,9 @@ using MQTTnet;
 using MQTTnet.Server;
 using System.Text;
 using Analytics.Model;
+using InfluxDB.Client;
+using InfluxDB.Client.Api.Domain;
+using InfluxDB.Client.Writes;
 
 namespace Analytics.Services
 {
@@ -10,6 +13,7 @@ namespace Analytics.Services
     {
         private readonly IMqttClient _mqttClient;
         private MqttFactory mqttFactory = new MqttFactory();
+        public InfluxDBClient _influxClient = InfluxDBClientFactory.Create(url: "http://influxdb:8086", token: "eWfT8XpJPxGCrlyloDtvqs904hq84P2hHkz8ccmiKvhCRPcf3cM_IzTqmWmah3uMizMns_6QxTJuzOOLTMYsaQ==");
         public MqttService()
         {
             _mqttClient = mqttFactory.CreateMqttClient();
@@ -34,8 +38,8 @@ namespace Analytics.Services
                     try
                     {
                         IoTReading Recived = Helper.Helper.Parse(payload);
-                        Console.WriteLine("Received application message. In object format is");
-                        Console.WriteLine(Recived.Ts, Recived.Device, Recived.Co);
+                        await WriteToDatabase(Recived);
+
                     }
                     catch (Exception ex)
                     {
@@ -93,6 +97,28 @@ namespace Analytics.Services
         private void OnDisconnected(MqttClientDisconnectedEventArgs e)
         {
             Console.WriteLine("Disconnected from MQTT broker.");
+        }
+
+        public async Task WriteToDatabase(IoTReading received)
+        {
+            var point = PointData
+                .Measurement("sensor")
+                .Tag("timestamp", received.Ts.ToString())
+                .Field("device", received.Device.ToString())
+                .Field("co", received.Co.ToString())
+                .Field("humidity", received.Humidity.ToString())
+                .Field("light", received.Light.ToString())
+                .Field("lpg", received.Lpg.ToString())
+                .Field("motion", received.Motion.ToString())
+                .Field("smoke", received.Smoke.ToString())
+                .Field("temp", received.Temp.ToString())
+                .Timestamp(DateTime.UtcNow, WritePrecision.Ns);
+
+            Console.WriteLine($"Write in InfluxDb check");
+
+            await _influxClient.GetWriteApiAsync().WritePointAsync(point, "IoTs", "b82ad135e0225ab8");
+            Console.WriteLine($"Write in InfluxDb: sensor");
+
         }
     }
 }
