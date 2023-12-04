@@ -6,6 +6,7 @@ using Analytics.Model;
 using InfluxDB.Client;
 using InfluxDB.Client.Api.Domain;
 using InfluxDB.Client.Writes;
+using Newtonsoft.Json;
 
 namespace Analytics.Services
 {
@@ -32,19 +33,24 @@ namespace Analytics.Services
                 _mqttClient.ApplicationMessageReceivedAsync += async e =>
                 {
                     string payload = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
-                    Console.WriteLine("Received application message.");
+
+                    if (e.ApplicationMessage.Topic == "senzorski_podaci")
+                    {  
+                        Console.WriteLine("Received application message from senzorski_podaci.");
+                        Console.WriteLine(payload);
+
+                        IoTReading Recived = Helper.Helper.Parse(payload);
+
+                        string jsonString = JsonConvert.SerializeObject(Recived);
+
+                        await PublishAsyncHelper("ekupier/sensordata", jsonString);
+                        return;
+
+                    }
+
+                    Console.WriteLine("Received application message from ekupier/sensordata.");
                     Console.WriteLine(payload);
 
-                    try
-                    {
-                        IoTReading Recived = Helper.Helper.Parse(payload);
-                        await WriteToDatabase(Recived);
-
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"An error occurred: {ex.Message}");
-                    }
                 };
 
                 await _mqttClient.ConnectAsync(options, CancellationToken.None);
@@ -79,7 +85,7 @@ namespace Analytics.Services
         }
 
 
-        public async Task PublishAsync(string topic, string payload)
+        public async Task PublishAsyncHelper(string topic, string payload)
         {
             var message = new MqttApplicationMessageBuilder()
                 .WithTopic(topic)
@@ -88,6 +94,7 @@ namespace Analytics.Services
                 .Build();
 
             await _mqttClient.PublishAsync(message);
+            Console.WriteLine("Sent application message from ekupier/sensordata.");
         }
         private void OnConnected(MqttClientConnectedEventArgs e)
         {

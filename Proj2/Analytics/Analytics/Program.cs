@@ -9,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 var mqttService = new MqttService();
 await mqttService.ConnectAsync("mqtt-broker", 1883, "user2", "123");
 await mqttService.SubscribeAsync("senzorski_podaci");
+await mqttService.SubscribeAsync("analyzed_sensordata");
 
 
 builder.Services.AddControllers();

@@ -16,7 +16,7 @@ services:
 
   publisher:
     build:
-      context: ../SensorDummy
+      context: ./SensorDummy
       dockerfile: Dockerfile
     container_name: publisher
     networks:
@@ -27,7 +27,7 @@ services:
 
   subscriber:
     build:
-      context: ../Analytics/Analytics
+      context: ./Analytics/Analytics
       dockerfile: Dockerfile
     container_name: subscriber
     networks:
@@ -39,7 +39,7 @@ services:
     image: influxdb
     container_name: influxdb
     volumes:
-      - ../influxdb:/var/lib/influxdb
+      - ./influxdb:/var/lib/influxdb
     environment:
       - INFLUXDB_ADMIN_ENABLED=true 
       - INFLUXDB_ADMIN_USER=${INFLUXDB_ADMIN_USER:-admin}
@@ -54,13 +54,28 @@ services:
     networks:
       - soa_net
 
+  ekp-manager:
+      image: emqx/ekuiper-manager:1.8.0
+      container_name: ekpmanager
+      ports:
+          - '9082:9082'
+      restart: unless-stopped
+      environment:
+          DEFAULT_EKUIPER_ENDPOINT: 'http://ekp:9081'
+
   ekp:
     image: lfedge/ekuiper:latest
     container_name: ekp
     networks:
       - soa_net
-    volumes:
-      - ../ekuiper/config.yaml:ekuiper/config.yaml
+    ports:
+      - '9081:9081'
+    # volumes:
+    #   - ./ekuiper/config:kuiper/config
+    environment:
+      MQTT_SOURCE__DEFAULT__SERVER: 'tcp://mqtt-broker:1883'
+      MQTT_SOURCE__DEFAULT__USERNAME: 'user3'
+      MQTT_SOURCE__DEFAULT__PASSWORD: '123'
     depends_on:
       - mqtt-broker
 
