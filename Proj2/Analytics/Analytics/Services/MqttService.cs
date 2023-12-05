@@ -7,6 +7,7 @@ using InfluxDB.Client;
 using InfluxDB.Client.Api.Domain;
 using InfluxDB.Client.Writes;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Analytics.Services
 {
@@ -14,7 +15,7 @@ namespace Analytics.Services
     {
         private readonly IMqttClient _mqttClient;
         private MqttFactory mqttFactory = new MqttFactory();
-        public InfluxDBClient _influxClient = InfluxDBClientFactory.Create(url: "http://influxdb:8086", token: "eWfT8XpJPxGCrlyloDtvqs904hq84P2hHkz8ccmiKvhCRPcf3cM_IzTqmWmah3uMizMns_6QxTJuzOOLTMYsaQ==");
+        public InfluxDBClient _influxClient = InfluxDBClientFactory.Create(url: "http://influxdb:8086", token: "k-NkF3ah3oblrvCbzxvDS96RvYxhBmil5ro1CaAhqIKSIG00YhVozjKRTxTrMIrjAUK6ItTAI4KH50RpPzkfrA==");
         public MqttService()
         {
             _mqttClient = mqttFactory.CreateMqttClient();
@@ -48,8 +49,35 @@ namespace Analytics.Services
 
                     }
 
-                    Console.WriteLine("Received application message from ekupier/sensordata.");
+                    Console.WriteLine("Received application message from analyzed_sensordata");
                     Console.WriteLine(payload);
+                    var data = (JObject)JsonConvert.DeserializeObject(payload);
+                    string timestamp = data.SelectToken("Ts").Value<string>();
+                    string device = data.SelectToken("Device").Value<string>();
+                    string co = data.SelectToken("Co").Value<string>();
+                    string humidity = data.SelectToken("Humidity").Value<string>();
+                    string light = data.SelectToken("Light").Value<string>();
+                    string lpg = data.SelectToken("Lpg").Value<string>();
+                    string motion = data.SelectToken("Motion").Value<string>();
+                    string smoke = data.SelectToken("Smoke").Value<string>();
+                    string temp = data.SelectToken("Temp").Value<string>();
+
+                    var point = PointData
+                        .Measurement("sensor")
+                        .Tag("temp", timestamp)
+                        .Field("device", device)
+                        .Field("co", co)
+                        .Field("humidity", humidity)
+                        .Field("light", light)
+                        .Field("lpg", lpg)
+                        .Field("motion", motion)
+                        .Field("smoke", smoke)
+                        .Field("temp", temp)
+                        .Timestamp(DateTime.UtcNow, WritePrecision.Ns);
+
+                    Console.WriteLine($"Write in InfluxDb check");
+                    await _influxClient.GetWriteApiAsync().WritePointAsync(point, "IoTs", "Ventilatori");
+                    Console.WriteLine($"Write in InfluxDb: sensor");
 
                 };
 
