@@ -35,34 +35,38 @@ namespace Visualization.Services
                 {
                     string payload = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
 
-                    Console.WriteLine("Received application message from analyzed_sensordata");
+                    Console.WriteLine("Received application message from topic");
                     Console.WriteLine(payload);
-                    var data = (JObject)JsonConvert.DeserializeObject(payload);
-                    string timestamp = data.SelectToken("Ts").Value<string>();
-                    string device = data.SelectToken("Device").Value<string>();
-                    string co = data.SelectToken("Co").Value<string>();
-                    string humidity = data.SelectToken("Humidity").Value<string>();
-                    string light = data.SelectToken("Light").Value<string>();
-                    string lpg = data.SelectToken("Lpg").Value<string>();
-                    string motion = data.SelectToken("Motion").Value<string>();
-                    string smoke = data.SelectToken("Smoke").Value<string>();
-                    string temp = data.SelectToken("Temp").Value<string>();
+                     if (e.ApplicationMessage.Topic == "senzorski_podaci_edgex")
+                        {
+                            var data = (JObject)JsonConvert.DeserializeObject(payload);
+                            string timestamp = data.SelectToken("Ts").Value<string>();
+                            string device = data.SelectToken("Device").Value<string>();
+                            string co = data.SelectToken("Co").Value<string>();
+                            string humidity = data.SelectToken("Humidity").Value<string>();
+                            string light = data.SelectToken("Light").Value<string>();
+                            string lpg = data.SelectToken("Lpg").Value<string>();
+                            string motion = data.SelectToken("Motion").Value<string>();
+                            string smoke = data.SelectToken("Smoke").Value<string>();
+                            string temp = data.SelectToken("Temp").Value<string>();
 
-                    var point = PointData
-                        .Measurement("sensor")
-                        .Tag("device", device)
-                        .Field("co", co)
-                        .Field("humidity", humidity)
-                        .Field("light", light)
-                        .Field("lpg", lpg)
-                        .Field("motion", motion)
-                        .Field("smoke", smoke)
-                        .Field("temp", temp)
-                        .Timestamp(DateTime.UtcNow, WritePrecision.Ns);
+                            var point = PointData
+                                .Measurement("sensor")
+                                .Tag("device", device)
+                                .Field("co", co)
+                                .Field("humidity", humidity)
+                                .Field("light", light)
+                                .Field("lpg", lpg)
+                                .Field("motion", motion)
+                                .Field("smoke", smoke)
+                                .Field("temp", temp)
+                                .Timestamp(DateTime.UtcNow, WritePrecision.Ns);
 
-                    Console.WriteLine($"Write in InfluxDb check");
-                    await _influxClient.GetWriteApiAsync().WritePointAsync(point, "IoTs", "Ventilatori");
-                    Console.WriteLine($"Write in InfluxDb: sensor");
+                            Console.WriteLine($"Write in InfluxDb check");
+                            //await _influxClient.GetWriteApiAsync().WritePointAsync(point, "IoTs", "Ventilatori");
+                            Console.WriteLine($"Write in InfluxDb: sensor");
+                     }
+
 
                 };
 
