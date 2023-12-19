@@ -1,23 +1,11 @@
 
 import requests
 import json
-import random
 import time
 
 
-edgexip = '127.0.0.1'
-humval = 40
-tempval = 23
+edgexip = 'host.docker.internal'
 file_path = "iot_telemetry_data.csv"
-
-def generateSensorData(humval, tempval):
-
-    humval = random.randint(humval-5,humval+5)
-    tempval = random.randint(tempval-1, tempval+1)
-
-    print("Sending values: Humidity %s, Temperature %sC" % (humval, tempval))
-
-    return (humval, tempval)
 
 def read_sensor_data_from_file(file_path):
     with open(file_path, "r") as file:
@@ -40,48 +28,51 @@ if __name__ == "__main__":
             print(f"Sending values: CO {co}, Humidity {humidity}%, Light {light}, LPG {lpg}, Motion {motion}, Smoke {smoke}, Temperature {temp}C")
 
             # Send all data types
-            url = f'http://{edgexip}:49986/api/v1/resource/SensorValueCluster2/timestamp'
-            payload = timestamp
-            headers = {'content-type': 'application/json'}
-            response = requests.post(url, data=json.dumps(payload), headers=headers, verify=False)
-            print(response)
-            url = f'http://{edgexip}:49986/api/v1/resource/SensorValueCluster2/device'
-            payload = device
-            headers = {'content-type': 'application/json'}
-            response = requests.post(url, data=json.dumps(payload), headers=headers, verify=False)
-            print(response)
-            url = f'http://{edgexip}:49986/api/v1/resource/SensorValueCluster2/co'
-            payload = float(co.strip('"'))
-            headers = {'content-type': 'application/json'}
-            response = requests.post(url, data=json.dumps(payload), headers=headers, verify=False)
-            print(response)
-            url = f'http://{edgexip}:49986/api/v1/resource/SensorValueCluster2/humidity'
-            payload = float(humidity.strip('"'))
-            headers = {'content-type': 'application/json'}
-            response = requests.post(url, data=json.dumps(payload), headers=headers, verify=False)
-            print(response)
-            url = f'http://{edgexip}:49986/api/v1/resource/SensorValueCluster2/light'
-            payload = bool(light.strip('"'))
-            headers = {'content-type': 'application/json'}
-            response = requests.post(url, data=json.dumps(payload), headers=headers, verify=False)
-            print(response)
-            url = f'http://{edgexip}:49986/api/v1/resource/SensorValueCluster2/lpg'
-            payload = float(lpg.strip('"'))
-            headers = {'content-type': 'application/json'}
-            response = requests.post(url, data=json.dumps(payload), headers=headers, verify=False)
-            print(response)
-            url = f'http://{edgexip}:49986/api/v1/resource/SensorValueCluster2/motion'
-            payload = bool(motion.strip('"'))
-            headers = {'content-type': 'application/json'}
-            response = requests.post(url, data=json.dumps(payload), headers=headers, verify=False)
-            print(response)
-            url = f'http://{edgexip}:49986/api/v1/resource/SensorValueCluster2/smoke'
-            payload = float(smoke.strip('"'))
-            headers = {'content-type': 'application/json'}
-            response = requests.post(url, data=json.dumps(payload), headers=headers, verify=False)
-            print(response)
+            # url = f'http://{edgexip}:49986/api/v1/resource/SensorValueCluster2/timestamp'
+            # payload = timestamp
+            # headers = {'content-type': 'application/json'}
+            # response = requests.post(url, data=json.dumps(payload), headers=headers, verify=False)
+            # print(response)
+            # url = f'http://{edgexip}:49986/api/v1/resource/SensorValueCluster2/device'
+            # payload = device
+            # print(payload)
+            # headers = {'content-type': 'application/json'}
+            # response = requests.post(url, data=json.dumps(payload), headers=headers, verify=False)
+            # print(response)
+            # url = f'http://{edgexip}:49986/api/v1/resource/SensorValueCluster2/co'
+            # payload = float(co.strip('"'))
+            # print(payload)
+            # headers = {'content-type': 'application/json'}
+            # response = requests.post(url, data=json.dumps(payload), headers=headers, verify=False)
+            # print(response)
+            # url = f'http://{edgexip}:49986/api/v1/resource/SensorValueCluster2/humidity'
+            # payload = humidity
+            # print(payload)
+            # headers = {'content-type': 'application/json'}
+            # response = requests.post(url, data=json.dumps(payload), headers=headers, verify=False)
+            # print(response)
+            # url = f'http://{edgexip}:49986/api/v1/resource/SensorValueCluster2/light'
+            # payload = bool(light.strip('"'))
+            # headers = {'content-type': 'application/json'}
+            # response = requests.post(url, data=json.dumps(payload), headers=headers, verify=False)
+            # print(response)
+            # url = f'http://{edgexip}:49986/api/v1/resource/SensorValueCluster2/lpg'
+            # payload = lpg
+            # headers = {'content-type': 'application/json'}
+            # response = requests.post(url, data=json.dumps(payload), headers=headers, verify=False)
+            # print(response)
+            # url = f'http://{edgexip}:49986/api/v1/resource/SensorValueCluster2/motion'
+            # payload = bool(motion.strip('"'))
+            # headers = {'content-type': 'application/json'}
+            # response = requests.post(url, data=json.dumps(payload), headers=headers, verify=False)
+            # print(response)
+            # url = f'http://{edgexip}:49986/api/v1/resource/SensorValueCluster2/smoke'
+            # payload = smoke
+            # headers = {'content-type': 'application/json'}
+            # response = requests.post(url, data=json.dumps(payload), headers=headers, verify=False)
+            # print(response)
             url = f'http://{edgexip}:49986/api/v1/resource/SensorValueCluster2/temp'
-            payload = float(temp.strip('"'))
+            payload = temp
             headers = {'content-type': 'application/json'}
             response = requests.post(url, data=json.dumps(payload), headers=headers, verify=False)
             print(response)

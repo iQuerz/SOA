@@ -29,16 +29,16 @@ value_descriptor_bodies = [
     {
         "name": "co",
         "description": "Carbon Monoxide level",
-        "type": "float64",
+        "type": "String",
         "uomLabel": "ppm",
-        "defaultValue": 0.0,
+        "defaultValue": "",
     },
     {
         "name": "humidity",
         "description": "Humidity level",
-        "type": "float64",
+        "type": "String",
         "uomLabel": "percent",
-        "defaultValue": 0.0,
+        "defaultValue": "",
     },
     {
         "name": "light",
@@ -50,9 +50,9 @@ value_descriptor_bodies = [
     {
         "name": "lpg",
         "description": "Liquefied Petroleum Gas level",
-        "type": "float64",
+        "type": "String",
         "uomLabel": "ppm",
-        "defaultValue": 0.0,
+        "defaultValue": "",
     },
     {
         "name": "motion",
@@ -63,16 +63,16 @@ value_descriptor_bodies = [
     {
         "name": "smoke",
         "description": "Smoke level",
-        "type": "float64",
+        "type": "String",
         "uomLabel": "ppm",
-        "defaultValue": 0.0,
+        "defaultValue": "",
     },
     {
         "name": "temp",
         "description": "Temperature",
-        "type": "float64",
+        "type": "String",
         "uomLabel": "celsius",
-        "defaultValue": 0.0,
+        "defaultValue": "",
     }
 ]
 

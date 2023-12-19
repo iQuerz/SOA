@@ -23,13 +23,13 @@ deviceResources:
         description: "Carbon Monoxide level"
         properties:
           value: 
-            { type: "float64", readWrite: "RW" }
+            { type: "String", readWrite: "RW" }
 
       - name: humidity
         description: "Humidity level"
         properties:
           value: 
-            { type: "float64", readWrite: "RW" }
+            { type: "String", readWrite: "RW" }
 
       - name: light
         description: "Light Presence"
@@ -41,7 +41,7 @@ deviceResources:
         description: "Liquefied Petroleum Gas level"
         properties:
           value: 
-            { type: "float64", readWrite: "RW" }
+            { type: "String", readWrite: "RW" }
 
       - name: motion
         description: "Motion detection"
@@ -52,12 +52,12 @@ deviceResources:
         description: "Smoke level"
         properties:
           value: 
-            { type: "float64", readWrite: "RW" }
+            { type: "String", readWrite: "RW" }
 
       - name: temp
         description: "Temperature"
         properties:
           value: 
-            { type: "float64", readWrite: "RW" }
+            { type: "String", readWrite: "RW" }
 
 
