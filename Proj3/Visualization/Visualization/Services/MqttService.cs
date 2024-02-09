@@ -15,12 +15,15 @@ namespace Visualization.Services
     {
         private readonly IMqttClient _mqttClient;
         private MqttFactory mqttFactory = new MqttFactory();
+<<<<<<< HEAD
         public InfluxDBClient _influxClient = InfluxDBClientFactory.Create(url: "http://influxdb:8086", token: "1234567890originalpassword");
 
+=======
+        public InfluxDBClient _influxClient = InfluxDBClientFactory.Create(url: "http://influxdb:8086", token: "9HIcc2vFIXBV3X7y_RaYHDPyl-lbCJ7KuELinqlLqqOoDzYI5mNmHXwPTjeD0SchJKB6NcY9fTF_qG8hyIPSmQ==");
+>>>>>>> 67b435ce9251fef18c3ce30f183525ded7b73e81
         public MqttService()
         {
             _mqttClient = mqttFactory.CreateMqttClient();
-
         }
 
         public async Task ConnectAsync(string brokerAddress, int port, string username, string password)
@@ -36,35 +39,32 @@ namespace Visualization.Services
                 {
                     string payload = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
 
-                    Console.WriteLine("Received application message from topic");
+                    Console.WriteLine("Received application message from topic" + "Edit test");
+                    Console.WriteLine(e.ApplicationMessage.Topic + " : Topic");
                     Console.WriteLine(payload);
                      if (e.ApplicationMessage.Topic == "senzorski_podaci_edgex")
                         {
                             var data = (JObject)JsonConvert.DeserializeObject(payload);
-                            string timestamp = data.SelectToken("Ts").Value<string>();
-                            string device = data.SelectToken("Device").Value<string>();
-                            string co = data.SelectToken("Co").Value<string>();
-                            string humidity = data.SelectToken("Humidity").Value<string>();
-                            string light = data.SelectToken("Light").Value<string>();
-                            string lpg = data.SelectToken("Lpg").Value<string>();
-                            string motion = data.SelectToken("Motion").Value<string>();
-                            string smoke = data.SelectToken("Smoke").Value<string>();
-                            string temp = data.SelectToken("Temp").Value<string>();
+                            Console.WriteLine("data is : " + data);
+                            string deviceValue = data["device"]?.ToString();
+                            Console.WriteLine("deviceValue is : " + deviceValue);
+
+
+                            string tempvalue = data["readings"]?[0]?["value"]?.ToString();
+                            string cleanedString = tempvalue.Replace("\"", "");
+                            Console.WriteLine("cleanedString is : " + cleanedString);
+                            cleanedString = tempvalue.Replace("\\", "");
+                            Console.WriteLine("cleanedString is : " + cleanedString);
+
 
                             var point = PointData
-                                .Measurement("sensor")
-                                .Tag("device", device)
-                                .Field("co", co)
-                                .Field("humidity", humidity)
-                                .Field("light", light)
-                                .Field("lpg", lpg)
-                                .Field("motion", motion)
-                                .Field("smoke", smoke)
-                                .Field("temp", temp)
-                                .Timestamp(DateTime.UtcNow, WritePrecision.Ns);
+                                    .Measurement("sensor")
+                                    .Tag("device", deviceValue)
+                                    .Field("temp", cleanedString)
+                                    .Timestamp(DateTime.UtcNow, WritePrecision.Ns);
 
                             Console.WriteLine($"Write in InfluxDb check");
-                            //await _influxClient.GetWriteApiAsync().WritePointAsync(point, "IoTs", "Ventilatori");
+                            await _influxClient.GetWriteApiAsync().WritePointAsync(point,bucket:"Proj3Test", "VentilatoriTest");
                             Console.WriteLine($"Write in InfluxDb: sensor");
                      }
 

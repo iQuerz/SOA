@@ -279,6 +279,7 @@ services:
       - mqtt-broker_edgex
       - consul
       - data
+      - metadata
       - system
       - device-rest
       - app-service-mqtt

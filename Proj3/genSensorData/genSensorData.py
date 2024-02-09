@@ -16,7 +16,7 @@ if __name__ == "__main__":
 
     sensorTypes = ["co", "humidity", "light", "lpg", "motion", "smoke", "temp"]
 
-
+    time.sleep(5)
     while True:
         # Read sensor data from the file
         sensor_data_lines = read_sensor_data_from_file(file_path)
