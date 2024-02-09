@@ -1,0 +1,2 @@
+docker run --network proj2_soa_net --name kuiper -e MQTT_SOURCE__DEFAULT__SERVER="tcp://mqtt-broker:1883" -e MQTT_SOURCE__DEFAULT__USERNAME="user3" -e MQTT_SOURCE__DEFAULT__PASSWORD="123" lfedge/ekuiper:1.8-slim
+docker run -d --name kuiper -e MQTT_SOURCE__DEFAULT__SERVER="tcp://broker.emqx.io:1883" lfedge/ekuiper:1.8-slim

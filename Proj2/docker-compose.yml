@@ -1,0 +1,89 @@
+version: '3.8'
+
+services:
+  mqtt-broker:
+    image: eclipse-mosquitto
+    container_name: mqtt-broker
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+    networks:
+      - soa_net
+    ports:
+      - "1883:1883"
+
+
+  publisher:
+    build:
+      context: ./SensorDummy
+      dockerfile: Dockerfile
+    container_name: publisher
+    networks:
+      - soa_net
+    depends_on:
+      - mqtt-broker
+
+
+  subscriber:
+    build:
+      context: ./Analytics/Analytics
+      dockerfile: Dockerfile
+    container_name: subscriber
+    networks:
+      - soa_net
+    depends_on:
+      - mqtt-broker
+
+  influxdb:
+    image: influxdb
+    container_name: influxdb
+    volumes:
+      - ./influxdb:/var/lib/influxdb
+    environment:
+      - INFLUXDB_ADMIN_ENABLED=true 
+      - INFLUXDB_ADMIN_USER=${INFLUXDB_ADMIN_USER:-admin}
+      - INFLUXDB_ADMIN_PASSWORD=${INFLUXDB_ADMIN_PASSWORD:-admin}
+      - INFLUXDB_DB=prometheus
+      - INFLUXDB_HTTP_LOG_ENABLED=false
+      - INFLUXDB_REPORTING_DISABLED=true
+      - INFLUXDB_USER=${INFLUXDB_USER:-prometheus}
+      - INFLUXDB_USER_PASSWORD=${INFLUXDB_USER_PASSWORD:-prompass}
+    ports:
+      - "8086:8086"
+    networks:
+      - soa_net
+
+  ekp-manager:
+      image: emqx/ekuiper-manager:1.8.0
+      container_name: ekpmanager
+      networks:
+        - soa_net
+      ports:
+          - '9082:9082'
+      restart: unless-stopped
+      environment:
+          DEFAULT_EKUIPER_ENDPOINT: 'http://ekp:9081'
+
+  ekp:
+    image: lfedge/ekuiper:latest
+    container_name: ekp
+    # volumes:
+    #   - /kuiper/data:/kuiper/data
+    #   - /kuiper/log:/kuiper/log
+    networks:
+      - soa_net
+    ports:
+      - '9081:9081'
+    #environment:
+      # MQTT_SOURCE__DEFAULT__SERVER: 'tcp://mqtt-broker:1883'
+      # MQTT_SOURCE__DEFAULT__USERNAME: 'user3'
+      # MQTT_SOURCE__DEFAULT__PASSWORD: '123'
+    depends_on:
+      - mqtt-broker
+
+
+
+networks:
+  soa_net:
+    driver: bridge
