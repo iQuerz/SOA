@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  influxdb_test:
+    image: influxdb:2.7.5
+    container_name: influxdb_test
+    volumes:
+      - ./influxdb:/var/lib/influxdb2
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=password
+      - DOCKER_INFLUXDB_INIT_ORG=VentilatoriTest
+      - DOCKER_INFLUXDB_INIT_BUCKET=Proj3Test
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=1234567890originalpassword
+    ports:
+      - "8086:8086"
+    networks:
+      - soa_net_test
+
+  grafana_test:
+    image: grafana/grafana-enterprise:10.3.1
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./grafana:/var/lib/grafana
+    networks:
+      - soa_net_test
+    depends_on:
+      - influxdb_test
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=password
+
+networks:
+  soa_net_test:
+    driver: bridge

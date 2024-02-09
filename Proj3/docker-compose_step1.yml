@@ -1,0 +1,346 @@
+
+version: '3.4'
+
+# all common shared environment variables defined here:
+x-common-env-variables: &common-variables
+  EDGEX_SECURITY_SECRET_STORE: "false"
+  Registry_Host: edgex-core-consul
+  Clients_CoreData_Host: edgex-core-data
+  Clients_Data_Host: edgex-core-data # For device Services
+  Clients_Notifications_Host: edgex-support-notifications
+  Clients_Metadata_Host: edgex-core-metadata
+  Clients_Command_Host: edgex-core-command
+  Clients_Scheduler_Host: edgex-support-scheduler
+  Clients_RulesEngine_Host: edgex-kuiper
+  Databases_Primary_Host: edgex-redis
+
+  # Required in case old configuration from previous release used.
+  # Change to "true" if re-enabling logging service for remote logging
+  Logging_EnableRemote: "false"
+  #  Clients_Logging_Host: edgex-support-logging # un-comment if re-enabling logging service for remote logging
+
+volumes:
+  db-data:
+  log-data:
+  consul-config:
+  consul-data:
+  influxdb:
+  grafana:
+
+services:
+  consul:
+    image: edgexfoundry/docker-edgex-consul:1.2.0
+    ports:
+      - "0.0.0.0:8400:8400"
+      - "0.0.0.0:8500:8500"
+    container_name: edgex-core-consul
+    hostname: edgex-core-consul
+    networks:
+      - edgex-network
+    volumes:
+      - consul-config:/consul/config:z
+      - consul-data:/consul/data:z
+    environment: 
+      - EDGEX_DB=redis
+      - EDGEX_SECURE=false
+
+  redis:
+    image: redis:5.0.8-alpine
+    ports:
+      - "0.0.0.0:6379:6379"
+    container_name: edgex-redis
+    hostname: edgex-redis
+    networks:
+      - edgex-network
+    environment:
+      <<: *common-variables
+    volumes:
+      - db-data:/data:z
+
+
+  system:
+    image: edgexfoundry/docker-sys-mgmt-agent-go:1.2.1
+    ports:
+      - "0.0.0.0:48090:48090"
+    container_name: edgex-sys-mgmt-agent
+    hostname: edgex-sys-mgmt-agent
+    networks:
+      - edgex-network
+    environment:
+      <<: *common-variables
+      Service_Host: edgex-sys-mgmt-agent
+      ExecutorPath: /sys-mgmt-executor
+      MetricsMechanism: executor
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:z
+    depends_on:
+      - consul
+#      - logging  # uncomment if re-enabled remote logging
+      - scheduler
+      - notifications
+      - metadata
+      - data
+      - command
+
+  notifications:
+    image: edgexfoundry/docker-support-notifications-go:1.2.1
+    ports:
+      - "0.0.0.0:48060:48060"
+    container_name: edgex-support-notifications
+    hostname: edgex-support-notifications
+    networks:
+      - edgex-network
+    environment:
+      <<: *common-variables
+      Service_Host: edgex-support-notifications
+    depends_on:
+      - consul
+#      - logging  # uncomment if re-enabled remote logging
+      - redis
+
+  metadata:
+    image: edgexfoundry/docker-core-metadata-go:1.2.1
+    ports:
+      - "0.0.0.0:48081:48081"
+    container_name: edgex-core-metadata
+    hostname: edgex-core-metadata
+    networks:
+      - edgex-network
+    environment:
+      <<: *common-variables
+      Service_Host: edgex-core-metadata
+      Service_Timeout: "20000"
+      Notifications_Sender: edgex-core-metadata
+    depends_on:
+      - consul
+#      - logging  # uncomment if re-enabled remote logging
+      - redis
+      - notifications
+
+  data:
+    image: edgexfoundry/docker-core-data-go:1.2.1
+    ports:
+      - "0.0.0.0:48080:48080"
+      - "0.0.0.0:5563:5563"
+    container_name: edgex-core-data
+    hostname: edgex-core-data
+    networks:
+      - edgex-network
+    environment:
+      <<: *common-variables
+      Service_Host: edgex-core-data
+    depends_on:
+      - consul
+#      - logging  # uncomment if re-enabled remote logging
+      - redis
+      - metadata
+
+  command:
+    image: edgexfoundry/docker-core-command-go:1.2.1
+    ports:
+      - "0.0.0.0:48082:48082"
+    container_name: edgex-core-command
+    hostname: edgex-core-command
+    networks:
+      - edgex-network
+    environment:
+      <<: *common-variables
+      Service_Host: edgex-core-command
+    depends_on:
+      - consul
+#      - logging  # uncomment if re-enabled remote logging
+      - redis
+      - metadata
+
+  scheduler:
+    image: edgexfoundry/docker-support-scheduler-go:1.2.1
+    ports:
+      - "0.0.0.0:48085:48085"
+    container_name: edgex-support-scheduler
+    hostname: edgex-support-scheduler
+    networks:
+      - edgex-network
+    environment:
+      <<: *common-variables
+      Service_Host: edgex-support-scheduler
+      IntervalActions_ScrubPushed_Host: edgex-core-data
+      IntervalActions_ScrubAged_Host: edgex-core-data
+    depends_on:
+      - consul
+#      - logging  # uncomment if re-enabled remote logging
+      - redis
+
+  app-service-rules:
+    image: edgexfoundry/docker-app-service-configurable:1.2.0
+    ports:
+      - "0.0.0.0:48100:48100"
+    container_name: edgex-app-service-configurable-rules
+    hostname: edgex-app-service-configurable-rules
+    networks:
+      - edgex-network
+    environment:
+      <<: *common-variables
+      edgex_profile: rules-engine
+      Service_Host: edgex-app-service-configurable-rules
+      Service_Port: 48100
+      MessageBus_SubscribeHost_Host: edgex-core-data
+      Binding_PublishTopic: events
+    depends_on:
+      - consul
+#      - logging  # uncomment if re-enabled remote logging
+      - data
+
+#################################################################
+# Device Services
+#################################################################
+
+  device-rest:
+    image: edgexfoundry/docker-device-rest-go:1.1.1
+    ports:
+      - "0.0.0.0:49986:49986"
+    container_name: edgex-device-rest
+    hostname: edgex-device-rest
+    networks:
+      - edgex-network
+    environment:
+      <<: *common-variables
+      Service_Host: edgex-device-rest
+    depends_on:
+      - data
+      - command
+  #      - logging  # uncomment if re-enabled remote logging
+
+
+  app-service-mqtt:
+        image: edgexfoundry/docker-app-service-configurable:1.1.0
+        ports:
+          - "0.0.0.0:48101:48101"
+        container_name: edgex-app-service-configurable-mqtt
+        hostname: edgex-app-service-configurable-mqtt
+        networks:
+          edgex-network:
+            aliases:
+              - edgex-app-service-configurable-mqtt
+        environment:
+          <<: *common-variables
+          edgex_profile: mqtt-export
+          Service_Host: edgex-app-service-configurable-mqtt
+          Service_Port: 48101
+          MessageBus_SubscribeHost_Host: edgex-core-data
+          Binding_PublishTopic: events
+          # Added for MQTT export using app service
+          WRITABLE_PIPELINE_FUNCTIONS_MQTTSEND_ADDRESSABLE_ADDRESS: "mqtt-broker_edgex"
+          WRITABLE_PIPELINE_FUNCTIONS_MQTTSEND_ADDRESSABLE_PORT: 1883
+          WRITABLE_PIPELINE_FUNCTIONS_MQTTSEND_ADDRESSABLE_PROTOCOL: tcp
+          WRITABLE_PIPELINE_FUNCTIONS_MQTTSEND_ADDRESSABLE_TOPIC: "senzorski_podaci_edgex"
+          WRITABLE_PIPELINE_FUNCTIONS_MQTTSEND_PARAMETERS_AUTORECONNECT: "true"
+          WRITABLE_PIPELINE_FUNCTIONS_MQTTSEND_PARAMETERS_RETAIN: "true"
+          WRITABLE_PIPELINE_FUNCTIONS_MQTTSEND_PARAMETERS_PERSISTONERROR: "false"
+          # WRITABLE_PIPELINE_FUNCTIONS_MQTTSEND_ADDRESSABLE_PUBLISHER:
+          WRITABLE_PIPELINE_FUNCTIONS_MQTTSEND_ADDRESSABLE_USER: user5
+          WRITABLE_PIPELINE_FUNCTIONS_MQTTSEND_ADDRESSABLE_PASSWORD: 123
+          # WRITABLE_PIPELINE_FUNCTIONS_MQTTSEND_PARAMETERS_QOS: ["your quality or service"]
+          # WRITABLE_PIPELINE_FUNCTIONS_MQTTSEND_PARAMETERS_KEY: [your Key]
+          # WRITABLE_PIPELINE_FUNCTIONS_MQTTSEND_PARAMETERS_CERT: [your Certificate]
+
+        depends_on:
+          - consul
+    #      - logging  # uncomment if re-enabled remote logging
+          - data
+  mqtt-broker_edgex:
+    image: eclipse-mosquitto
+    container_name: mqtt-broker_edgex
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+    networks:
+      - edgex-network
+    ports:
+      - "1883:1883"
+
+  #-------------------------------------------------------------------
+  #-------------------------------------------------------------------
+  #-------------------------------------------------------------------
+  #-------------------------------------------------------------------
+  #-------------------------------------------------------------------
+  #-------------------------------------------------------------------
+  #-------------------------------------------------------------------
+  ##VENTILATORI CONTAINERS:
+
+  gensensordata:
+    build:
+      context: ./genSensorData
+      dockerfile: Dockerfile
+    container_name: genSensorData
+    networks:
+      - edgex-network
+    depends_on:
+      - mqtt-broker_edgex
+      - consul
+      - data
+      - metadata
+      - system
+      - device-rest
+      - app-service-mqtt
+      - app-service-rules
+      - scheduler
+      - command
+
+  monitoring:
+    build:
+      context: ./Monitoring
+      dockerfile: Dockerfile
+    container_name: monitoring
+    networks:
+      - edgex-network
+    depends_on:
+      - mqtt-broker_edgex
+
+  visualization:
+    build:
+      context: ./Visualization/Visualization
+      dockerfile: Dockerfile
+    container_name: visualization
+    networks:
+      - edgex-network
+    depends_on:
+      - mqtt-broker_edgex
+      - influxdb_edgex
+
+  influxdb_edgex:
+    image: influxdb
+    container_name: influxdb_edgex
+    volumes:
+      - ./influxdb:/var/lib/influxdb2
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=password
+      - DOCKER_INFLUXDB_INIT_ORG=Ventilatori
+      - DOCKER_INFLUXDB_INIT_BUCKET=IoTs
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=1234567890originalpassword
+    ports:
+      - "8086:8086"
+    networks:
+      - edgex-network
+  
+  grafana:
+    image: grafana/grafana-enterprise:10.3.1
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./grafana:/var/lib/grafana
+    networks:
+      - edgex-network
+    depends_on:
+      - influxdb_edgex
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=password
+
+networks:
+  edgex-network:
+    driver: "bridge"

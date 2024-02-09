@@ -1,0 +1,60 @@
+
+value descriptors:
+
+[
+    {
+      "name": "co",
+      "description": "Carbon Monoxide level",
+      "type": "float64",
+      "uomLabel": "ppm",
+      "defaultValue": 0.0,
+      "format": "%.2f"
+    },
+    {
+      "name": "humidity",
+      "description": "Humidity level",
+      "type": "float64",
+      "uomLabel": "percent",
+      "defaultValue": 0.0,
+      "format": "%.2f"
+    },
+    {
+      "name": "light",
+      "description": "Light presence",
+      "type": "boolean",
+      "uomLabel": "present",
+      "defaultValue": false,
+      "format": "%"
+    },
+    {
+      "name": "lpg",
+      "description": "Liquefied Petroleum Gas level",
+      "type": "float64",
+      "uomLabel": "ppm",
+      "defaultValue": 0.0,
+      "format": "%.2f"
+    },
+    {
+      "name": "motion",
+      "description": "Motion detection",
+      "type": "bool",
+      "defaultValue": false
+    },
+    {
+      "name": "smoke",
+      "description": "Smoke level",
+      "type": "float64",
+      "uomLabel": "ppm",
+      "defaultValue": 0.0,
+      "format": "%.2f"
+    },
+    {
+      "name": "temp",
+      "description": "Temperature",
+      "type": "float64",
+      "uomLabel": "celsius",
+      "defaultValue": 0.0,
+      "format": "%.2f"
+    }
+  ]
+  

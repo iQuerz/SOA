@@ -1,0 +1,63 @@
+name: "SensorCluster2"
+manufacturer: "Raspberry Pi Foundation"
+model: "Raspberry Pi 3b+"
+labels:
+  - "rpi"
+description: "Sensor cluster providing metrics for reading .csv"
+
+deviceResources:
+
+      - name: timestamp
+        description: "timestamp"
+        properties:
+          value: 
+            { type: "string", readWrite: "RW" }
+
+      - name: device
+        description: "device"
+        properties:
+          value: 
+            { type: "String", readWrite: "RW" }
+
+      - name: co
+        description: "Carbon Monoxide level"
+        properties:
+          value: 
+            { type: "String", readWrite: "RW" }
+
+      - name: humidity
+        description: "Humidity level"
+        properties:
+          value: 
+            { type: "String", readWrite: "RW" }
+
+      - name: light
+        description: "Light Presence"
+        properties:
+          value: 
+            { type: "bool", readWrite: "RW" }
+
+      - name: lpg
+        description: "Liquefied Petroleum Gas level"
+        properties:
+          value: 
+            { type: "String", readWrite: "RW" }
+
+      - name: motion
+        description: "Motion detection"
+        properties:
+          value: { type: "bool", readWrite: "RW" }
+
+      - name: smoke
+        description: "Smoke level"
+        properties:
+          value: 
+            { type: "String", readWrite: "RW" }
+
+      - name: temp
+        description: "Temperature"
+        properties:
+          value: 
+            { type: "String", readWrite: "RW" }
+
+
