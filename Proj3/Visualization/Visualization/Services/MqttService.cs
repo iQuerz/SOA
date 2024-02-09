@@ -15,7 +15,8 @@ namespace Visualization.Services
     {
         private readonly IMqttClient _mqttClient;
         private MqttFactory mqttFactory = new MqttFactory();
-        public InfluxDBClient _influxClient = InfluxDBClientFactory.Create(url: "http://influxdb:8086", token: "k-NkF3ah3oblrvCbzxvDS96RvYxhBmil5ro1CaAhqIKSIG00YhVozjKRTxTrMIrjAUK6ItTAI4KH50RpPzkfrA==");
+        public InfluxDBClient _influxClient = InfluxDBClientFactory.Create(url: "http://influxdb:8086", token: "1234567890originalpassword");
+
         public MqttService()
         {
             _mqttClient = mqttFactory.CreateMqttClient();

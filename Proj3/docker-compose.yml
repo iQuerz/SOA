@@ -46,7 +46,7 @@ services:
       - mqtt-broker_edgex
 
   influxdb_edgex:
-    image: influxdb
+    image: influxdb:latest
     container_name: influxdb_edgex
     volumes:
       - ./influxdb:/var/lib/influxdb
@@ -72,6 +72,11 @@ services:
       - '3000:3000'
     networks:
       - soa_net_edgex
+    depends_on:
+      - influxdb_edgex
+    environment:
+      - GF_SECURITY_ADMIN_USER=$admin
+      - GF_SECURITY_ADMIN_PASSWORD=$admin
 
 
 

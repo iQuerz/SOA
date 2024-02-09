@@ -1,26 +1,3 @@
-# /*******************************************************************************
-#  * Copyright 2020 Redis Labs Inc.
-#  * Copyright 2020 Intel Corporation.
-#  *
-#  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
-#  * in compliance with the License. You may obtain a copy of the License at
-#  *
-#  * http://www.apache.org/licenses/LICENSE-2.0
-#  *
-#  * Unless required by applicable law or agreed to in writing, software distributed under the License
-#  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
-#  * or implied. See the License for the specific language governing permissions and limitations under
-#  * the License.
-#  *
-#  * @author: Jim White, Dell
-#  * @author: Andre Srinivasan, Redis Labs
-#  * @author: Leonard Goodell, Intel
-#  * EdgeX Foundry, Geneva, version 1.2.0
-#  * added: May 14, 2020
-#  *******************************************************************************/
-
-# NOTE:  this Docker Compose file does not contain the security services - namely the API Gateway
-# and Secret Store
 
 version: '3.4'
 
@@ -47,6 +24,8 @@ volumes:
   log-data:
   consul-config:
   consul-data:
+  influxdb:
+  grafana:
 
 services:
   consul:
@@ -78,27 +57,6 @@ services:
     volumes:
       - db-data:/data:z
 
-# The logging service has been deprecated in Geneva release and will be removed in the Hanoi release.
-# All services are configure to send logging to STDOUT, i.e. not remote which requires this logging service
-# If you still must use remote logging, un-comment the block below, all the related depends that have been commented out
-# and the related global override that are commented out at the top.
-#
-#  logging:
-#    image: edgexfoundry/docker-support-logging-go:1.2.1
-#    ports:
-#      - "0.0.0.0:48061:48061"
-#    container_name: edgex-support-logging
-#    hostname: edgex-support-logging
-#    networks:
-#      - edgex-network
-#    environment:
-#      <<: *common-variables
-#      Service_Host: edgex-support-logging
-#      Writable_Persistence: file
-#      Databases_Primary_Type: file
-#      Logging_EnableRemote: "false"
-#    depends_on:
-#      - consul
 
   system:
     image: edgexfoundry/docker-sys-mgmt-agent-go:1.2.1
@@ -232,81 +190,6 @@ services:
 #      - logging  # uncomment if re-enabled remote logging
       - data
 
-
-  # app-service-mqtt:
-  #     image: edgexfoundry/docker-app-service-configurable:1.1.0
-  #     ports:
-  #       - "0.0.0.0:48101:48101"
-  #     container_name: edgex-app-service-configurable-mqtt
-  #     hostname: edgex-app-service-configurable-mqtt
-  #     networks:
-  #       edgex-network:
-  #         aliases:
-  #           - edgex-app-service-configurable-mqtt
-  #     environment:
-  #       <<: *common-variables
-  #       edgex_profile: mqtt-export
-  #       Service_Host: edgex-app-service-configurable-mqtt
-  #       Service_Port: 48101
-  #       MessageBus_SubscribeHost_Host: edgex-core-data
-  #       Binding_PublishTopic: events
-  #       # Added for MQTT export using app service
-  #       WRITABLE_PIPELINE_FUNCTIONS_MQTTSEND_ADDRESSABLE_ADDRESS: broker.hivemq.com
-  #       WRITABLE_PIPELINE_FUNCTIONS_MQTTSEND_ADDRESSABLE_PORT: 1883
-  #       WRITABLE_PIPELINE_FUNCTIONS_MQTTSEND_ADDRESSABLE_PROTOCOL: tcp
-  #       WRITABLE_PIPELINE_FUNCTIONS_MQTTSEND_ADDRESSABLE_TOPIC: YOUR-UNIQUE-TOPIC
-  #       WRITABLE_PIPELINE_FUNCTIONS_MQTTSEND_PARAMETERS_AUTORECONNECT: "true"
-  #       WRITABLE_PIPELINE_FUNCTIONS_MQTTSEND_PARAMETERS_RETAIN: "true"
-  #       WRITABLE_PIPELINE_FUNCTIONS_MQTTSEND_PARAMETERS_PERSISTONERROR: "false"
-  #       # WRITABLE_PIPELINE_FUNCTIONS_MQTTSEND_ADDRESSABLE_PUBLISHER: 
-  #       # WRITABLE_PIPELINE_FUNCTIONS_MQTTSEND_ADDRESSABLE_USER: 
-  #       # WRITABLE_PIPELINE_FUNCTIONS_MQTTSEND_ADDRESSABLE_PASSWORD:
-  #       # WRITABLE_PIPELINE_FUNCTIONS_MQTTSEND_PARAMETERS_QOS: ["your quality or service"]
-  #       # WRITABLE_PIPELINE_FUNCTIONS_MQTTSEND_PARAMETERS_KEY: [your Key]  
-  #       # WRITABLE_PIPELINE_FUNCTIONS_MQTTSEND_PARAMETERS_CERT: [your Certificate]
-
-  #     depends_on:
-  #       - consul
-  # #      - logging  # uncomment if re-enabled remote logging
-  #       - data
-
-
-
-  # rulesengine:
-  #   image: emqx/kuiper:0.4.2-alpine
-  #   ports:
-  #     - "0.0.0.0:48075:48075"
-  #     - "0.0.0.0:20498:20498"
-  #   container_name: edgex-kuiper
-  #   hostname: edgex-kuiper
-  #   networks:
-  #     - edgex-network
-  #   environment:
-  #     # KUIPER_DEBUG: "true"
-  #     KUIPER_CONSOLE_LOG: "true"
-  #     KUIPER_REST_PORT: 48075
-  #     EDGEX_SERVER: edgex-app-service-configurable-rules
-  #     EDGEX_SERVICE_SERVER: http://edgex-core-data:48080
-  #     EDGEX_TOPIC: events
-  #     EDGEX_PROTOCOL: tcp
-  #     EDGEX_PORT: 5566
-  #   depends_on:
-  #     - app-service-rules
-
-  # Support RulesEngine has been deprecated in the Geneva (1.2.0) release
-  # If still required, simply uncomment the block below and comment out the block above.
-  #
-  # rulesengine:
-  #   image: edgexfoundry/docker-support-rulesengine:1.2.1
-  #   ports:
-  #     - "0.0.0.0:48075:48075"
-  #   container_name: edgex-support-rulesengine
-  #   hostname: edgex-support-rulesengine
-  #   networks:
-  #     - edgex-network
-  #   depends_on:
-  #     - app-service-rules
-
 #################################################################
 # Device Services
 #################################################################
@@ -327,65 +210,7 @@ services:
       - command
   #      - logging  # uncomment if re-enabled remote logging
 
-#  device-random:
-#    image: edgexfoundry/docker-device-random-go:1.2.1
-#    ports:
-#      - "0.0.0.0:49988:49988"
-#    container_name: edgex-device-random
-#    hostname: edgex-device-random
-#    networks:
-#      - edgex-network
-#    environment:
-#      <<: *common-variables
-#      Service_Host: edgex-device-random
-#    depends_on:
-#      - data
-#      - command
-#
-#  device-mqtt:
-#    image: edgexfoundry/docker-device-mqtt-go:1.2.1
-#    ports:
-#      - "0.0.0.0:49982:49982"
-#    container_name: edgex-device-mqtt
-#    hostname: edgex-device-mqtt
-#    networks:
-#      - edgex-network
-#    environment:
-#      <<: *common-variables
-#      Service_Host: edgex-device-mqtt
-#    depends_on:
-#      - data
-#      - command
-#
-#  device-modbus:
-#    image: edgexfoundry/docker-device-modbus-go:1.2.1
-#    ports:
-#      - "0.0.0.0:49991:49991"
-#    container_name: edgex-device-modbus
-#    hostname: edgex-device-modbus
-#    networks:
-#      - edgex-network
-#    environment:
-#      <<: *common-variables
-#      Service_Host: edgex-device-modbus
-#    depends_on:
-#      - data
-#      - command
-#
-#  device-snmp:
-#    image: edgexfoundry/docker-device-snmp-go:1.2.1
-#    ports:
-#      - "0.0.0.0:49993:49993"
-#    container_name: edgex-device-snmp
-#    hostname: edgex-device-snmp
-#    networks:
-#      - edgex-network
-#    environment:
-#      <<: *common-variables
-#      Service_Host: edgex-device-snmp
-#    depends_on:
-#      - data
-#      - command
+
   app-service-mqtt:
         image: edgexfoundry/docker-app-service-configurable:1.1.0
         ports:
@@ -434,6 +259,14 @@ services:
     ports:
       - "1883:1883"
 
+  #-------------------------------------------------------------------
+  #-------------------------------------------------------------------
+  #-------------------------------------------------------------------
+  #-------------------------------------------------------------------
+  #-------------------------------------------------------------------
+  #-------------------------------------------------------------------
+  #-------------------------------------------------------------------
+  ##VENTILATORI CONTAINERS:
 
   gensensordata:
     build:
@@ -452,8 +285,6 @@ services:
       - app-service-rules
       - scheduler
       - command
-
-
 
   monitoring:
     build:
@@ -476,23 +307,38 @@ services:
       - mqtt-broker_edgex
 
   influxdb_edgex:
-    image: influxdb
+    image: influxdb:2.7.5
     container_name: influxdb_edgex
     volumes:
-      - ./influxdb:/var/lib/influxdb
+      - ./influxdb:/var/lib/influxdb2
     environment:
-      - INFLUXDB_ADMIN_ENABLED=true 
-      - INFLUXDB_ADMIN_USER=${INFLUXDB_ADMIN_USER:-admin}
-      - INFLUXDB_ADMIN_PASSWORD=${INFLUXDB_ADMIN_PASSWORD:-admin}
-      - INFLUXDB_DB=prometheus
-      - INFLUXDB_HTTP_LOG_ENABLED=false
-      - INFLUXDB_REPORTING_DISABLED=true
-      - INFLUXDB_USER=${INFLUXDB_USER:-prometheus}
-      - INFLUXDB_USER_PASSWORD=${INFLUXDB_USER_PASSWORD:-prompass}
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=password
+      - DOCKER_INFLUXDB_INIT_ORG=VentilatoriTest
+      - DOCKER_INFLUXDB_INIT_BUCKET=Proj3Test
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=1234567890originalpassword
     ports:
       - "8086:8086"
     networks:
       - edgex-network
+  
+  grafana:
+    image: grafana/grafana-enterprise:10.3.1
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./grafana:/var/lib/grafana
+    networks:
+      - edgex-network
+    depends_on:
+      - influxdb_edgex
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=password
+
 
 networks:
   edgex-network:
