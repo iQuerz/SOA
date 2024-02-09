@@ -309,7 +309,7 @@ services:
       - influxdb_edgex
 
   influxdb_edgex:
-    image: influxdb:2.7.5
+    image: influxdb
     container_name: influxdb_edgex
     volumes:
       - ./influxdb:/var/lib/influxdb2
