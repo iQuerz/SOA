@@ -15,7 +15,7 @@ namespace Visualization.Services
     {
         private readonly IMqttClient _mqttClient;
         private MqttFactory mqttFactory = new MqttFactory();
-        public InfluxDBClient _influxClient = InfluxDBClientFactory.Create(url: "http://influxdb:8086", token: "9HIcc2vFIXBV3X7y_RaYHDPyl-lbCJ7KuELinqlLqqOoDzYI5mNmHXwPTjeD0SchJKB6NcY9fTF_qG8hyIPSmQ==");
+        public InfluxDBClient _influxClient = InfluxDBClientFactory.Create(url: "http://influxdb_edgex:8086", token: "1234567890originalpassword");
         public MqttService()
         {
             _mqttClient = mqttFactory.CreateMqttClient();
@@ -34,8 +34,7 @@ namespace Visualization.Services
                 {
                     string payload = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
 
-                    Console.WriteLine("Received application message from topic" + "Edit test");
-                    Console.WriteLine(e.ApplicationMessage.Topic + " : Topic");
+                    Console.WriteLine("Received application message from topic : " + e.ApplicationMessage.Topic);
                     Console.WriteLine(payload);
                      if (e.ApplicationMessage.Topic == "senzorski_podaci_edgex")
                         {
@@ -46,21 +45,27 @@ namespace Visualization.Services
 
 
                             string tempvalue = data["readings"]?[0]?["value"]?.ToString();
-                            string cleanedString = tempvalue.Replace("\"", "");
-                            Console.WriteLine("cleanedString is : " + cleanedString);
-                            cleanedString = tempvalue.Replace("\\", "");
-                            Console.WriteLine("cleanedString is : " + cleanedString);
-
+                            string cleanedString = tempvalue.Replace("\\", "").Replace("\"", "");
+                            float temp = float.Parse(cleanedString);
+                            Console.WriteLine("Temp in float is : " + temp);
 
                             var point = PointData
                                     .Measurement("sensor")
                                     .Tag("device", deviceValue)
-                                    .Field("temp", cleanedString)
+                                    .Field("temp", temp)
                                     .Timestamp(DateTime.UtcNow, WritePrecision.Ns);
 
                             Console.WriteLine($"Write in InfluxDb check");
-                            await _influxClient.GetWriteApiAsync().WritePointAsync(point,bucket:"Proj3Test", "VentilatoriTest");
-                            Console.WriteLine($"Write in InfluxDb: sensor");
+                        try
+                        {
+                            await _influxClient.GetWriteApiAsync().WritePointAsync(point, "IoTs", "Ventilatori");
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Error writing to InfluxDB: {ex.Message}");
+                            // Log the exception or take appropriate action.
+                        }
+                        Console.WriteLine($"Write in InfluxDb: sensor");
                      }
 
 
