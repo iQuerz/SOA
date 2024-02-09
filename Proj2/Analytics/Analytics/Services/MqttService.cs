@@ -15,7 +15,7 @@ namespace Analytics.Services
     {
         private readonly IMqttClient _mqttClient;
         private MqttFactory mqttFactory = new MqttFactory();
-        public InfluxDBClient _influxClient = InfluxDBClientFactory.Create(url: "http://influxdb:8086", token: "k-NkF3ah3oblrvCbzxvDS96RvYxhBmil5ro1CaAhqIKSIG00YhVozjKRTxTrMIrjAUK6ItTAI4KH50RpPzkfrA==");
+        public InfluxDBClient _influxClient = InfluxDBClientFactory.Create(url: "http://influxdb:8086", token: "GBPTbGzu-dRzQxA3Ywr3kc7gr2sBJYRfc4C1yGdWK2cjQBEYx11uK6S4cLevW2rpVnxqVG3xpsxKJm7Z-JJtEA==");
         public MqttService()
         {
             _mqttClient = mqttFactory.CreateMqttClient();
@@ -64,8 +64,7 @@ namespace Analytics.Services
 
                     var point = PointData
                         .Measurement("sensor")
-                        .Tag("temp", timestamp)
-                        .Field("device", device)
+                        .Tag("device", device)
                         .Field("co", co)
                         .Field("humidity", humidity)
                         .Field("light", light)
@@ -122,7 +121,7 @@ namespace Analytics.Services
                 .Build();
 
             await _mqttClient.PublishAsync(message);
-            Console.WriteLine("Sent application message from ekupier/sensordata.");
+            Console.WriteLine("Sent application message to ekupier/sensordata.");
         }
         private void OnConnected(MqttClientConnectedEventArgs e)
         {
