@@ -1,4 +1,5 @@
 import paho.mqtt.client as mqtt
+import json
 import time
 
 
@@ -24,9 +25,11 @@ def on_connect(client, userdata, flags, rc):
 def on_message(client, userdata, msg):
     payload = msg.payload.decode("utf-8")
     print(f"Received message on topic {msg.topic}: {payload}")
-
-    temp = float(payload.split(',')[-1].strip(' "\n'))
-    if temp > 21:
+    temp_value = 0
+    message_dict = json.loads(payload)
+    temperature_value_str = message_dict['readings'][0]['value']
+    temp_value = float(temperature_value_str.replace('\\', '').replace('"',''))
+    if temp_value > 21:
         print("Restart Sensor")
         client.publish("Comand_edgex", "Restart Sensor") #ovo treba da bude simulirana poruka edgeX comanda za sada je samo drugi topic
 

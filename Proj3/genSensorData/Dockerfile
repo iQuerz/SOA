@@ -14,4 +14,4 @@ RUN pip install --no-cache-dir -r /app/requirements.txt
 EXPOSE 80
 
 # Run Sensordummy.py when the container launches
-CMD ["python", "Sensordummy.py"]
+CMD ["python", "genSensorData.py"]
