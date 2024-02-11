@@ -6,11 +6,18 @@ namespace GQL.Schema
     {
         readonly string connectionString = "Data Source=../Database/iot_telemetry_data.db;";
 
-        public async Task<List<SensorReadingType>> GetReadings(int take = 10, string device = "", bool sort = true)
+        public async Task<List<SensorReadingType>> GetReadings(int take = 10, string device = "", bool sort = true, double maxTemp = 100, bool? light = null)
         {
             var result = new List<SensorReadingType>();
 
-            var where = string.IsNullOrEmpty(device) ? string.Empty : $"WHERE device='{device}'";
+            var whereConditions = new List<string>();
+            if (!string.IsNullOrEmpty(device))
+                whereConditions.Add($"device='{device}'");
+            if (light is not null)
+                whereConditions.Add($"light={(light.Value ? 1 : 0)}");
+            whereConditions.Add($"temp<{maxTemp}");
+
+            var where = $"WHERE {string.Join(" AND ", whereConditions)}";
             var limit = $"LIMIT {take}";
             var order = sort ? $"ORDER BY ts ASC" : "";
 
